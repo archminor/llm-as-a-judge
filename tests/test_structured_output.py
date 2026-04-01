@@ -367,7 +367,7 @@ class TestApplyStructuredOutputSystemMessage:
         ]
         result = _apply_structured_output_system_message(original)
         assert result[0]["role"] == "system"
-        assert "レスポンスフォーマットを優先" in result[0]["content"]
+        assert "prioritize the response format" in result[0]["content"]
         assert result[1] == {"role": "user", "content": "user message"}
 
     def test_does_not_mutate_original(self):
@@ -765,6 +765,6 @@ class TestStructuredOutputMessagesMode:
             sent_messages = mock_chat.call_args.kwargs.get("messages", mock_chat.call_args[1].get("messages"))
             if sent_messages is None:
                 sent_messages = mock_chat.call_args[0][2] if len(mock_chat.call_args[0]) > 2 else None
-            assert "レスポンスフォーマットを優先" in sent_messages[0]["content"]
+            assert "prioritize the response format" in sent_messages[0]["content"]
 
         assert record.status.ok is True

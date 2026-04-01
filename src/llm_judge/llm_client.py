@@ -213,6 +213,7 @@ def _gemini_generate_content(
     api_key: str,
     endpoint: str,
     json_mode: bool = False,
+    response_schema: dict | None = None,
     generation_params: dict[str, Any] | None = None,
 ) -> dict:
     """Call the Gemini generateContent API and return raw response JSON."""
@@ -226,8 +227,10 @@ def _gemini_generate_content(
     gen_config: dict[str, Any] = {}
     if generation_params:
         gen_config.update(generation_params)
-    if json_mode:
+    if json_mode or response_schema:
         gen_config["responseMimeType"] = "application/json"
+    if response_schema:
+        gen_config["responseSchema"] = response_schema
     if gen_config:
         body["generationConfig"] = gen_config
 
@@ -242,6 +245,48 @@ def _gemini_generate_content(
     if resp.status_code != 200:
         raise GeminiAPIError(resp.status_code, resp.text)
     return resp.json()
+
+
+# ── Gemini inference helper ───────────────────────────────
+
+
+def gemini_inference_completion(
+    model: str,
+    messages: list[dict[str, str]],
+    endpoint: str | None = None,
+    generation_params: dict[str, Any] | None = None,
+    response_schema: dict | None = None,
+) -> CompletionResult:
+    """Gemini native inference with optional schema-constrained output."""
+    api_key, env_endpoint = resolve_vendor_env("gemini")
+    endpoint = endpoint or env_endpoint or _GEMINI_DEFAULT_ENDPOINT
+
+    params = {}
+    if generation_params:
+        params.update(generation_params)
+    # Gemini uses maxOutputTokens instead of max_tokens
+    if "max_tokens" in params:
+        params["maxOutputTokens"] = params.pop("max_tokens")
+
+    raw = _gemini_generate_content(
+        model=model,
+        messages=messages,
+        api_key=api_key,
+        endpoint=endpoint,
+        response_schema=response_schema,
+        generation_params=params,
+    )
+    text = _extract_gemini_text(raw)
+    finish_reason = _extract_gemini_finish_reason(raw)
+    input_tokens, output_tokens = _extract_gemini_usage(raw)
+
+    return CompletionResult(
+        text=text,
+        finish_reason=finish_reason,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        raw_response=raw,
+    )
 
 
 # ── Provider-independent judge helper ────────────────────

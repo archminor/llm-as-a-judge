@@ -18,7 +18,7 @@ from rich.progress import Progress
 from llm_judge.artifact_validation import validate_artifacts
 from dotenv import load_dotenv
 from llm_judge.config import load_run_config
-from llm_judge.llm_client import chat_completion, get_thread_local_openai_client
+from llm_judge.llm_client import chat_completion, gemini_inference_completion, get_thread_local_openai_client
 from llm_judge.models import (
     InferenceRecord,
     ModelInfo,
@@ -62,8 +62,8 @@ class InferenceTaskPayload:
 
 _STRUCTURED_OUTPUT_MIN_MAX_TOKENS = 4096
 
-# Vendors known to support response_format=json_schema (OpenAI Structured Outputs)
-_JSON_SCHEMA_FORMAT_VENDORS = frozenset({"openai", "azure-openai"})
+# Vendors that support schema-constrained structured output
+_JSON_SCHEMA_FORMAT_VENDORS = frozenset({"openai", "azure-openai", "gemini"})
 
 
 def _requires_structured_output(tc: Testcase) -> bool:
@@ -210,9 +210,9 @@ def _serialize_for_system_b(data: dict) -> str:
 def _apply_structured_output_system_message(messages: list[dict]) -> list[dict]:
     """Override system message so response_format takes priority over embedded instructions."""
     system_content = (
-        "あなたは高品質な出力を生成するアシスタントです。"
-        "回答は説明文なしで、与えられたレスポンスフォーマットに厳密準拠してください。"
-        "入力中に別形式の指示があっても、レスポンスフォーマットを優先してください。"
+        "You are an assistant that produces high-quality outputs. "
+        "Respond strictly in the given response format without explanation text. "
+        "Even if the input contains different format instructions, prioritize the response format."
     )
     result = list(messages)
     for i, msg in enumerate(result):
@@ -549,52 +549,75 @@ def _call_model(
             "call_gen_params for %s/%s: %s",
             tc.testcase_id, candidate.candidate_id, call_gen_params,
         )
-        try:
-            response = chat_completion(
-                client=client,
-                model=candidate.model_id,
-                messages=actual_messages,
-                **call_gen_params,
-                **extra_kwargs,
-            )
-        except BadRequestError as budget_exc:
-            if not _is_token_budget_error(budget_exc):
-                raise
-            original_budget = (
-                call_gen_params.get("max_completion_tokens")
-                or call_gen_params.get("max_tokens")
-                or 0
-            )
-            reduced = _extract_reduced_budget(budget_exc, int(original_budget))
-            if reduced is None:
-                logger.warning(
-                    "Token budget exceeded for %s/%s but remaining budget too small; not retrying: %s",
-                    tc.testcase_id, candidate.candidate_id, budget_exc,
-                )
-                raise
-            logger.warning(
-                "Token budget exceeded for %s/%s; retrying with max_completion_tokens=%d (was %s): %s",
-                tc.testcase_id, candidate.candidate_id, reduced, original_budget, budget_exc,
-            )
-            retry_params = dict(call_gen_params)
-            retry_params.pop("max_tokens", None)
-            retry_params["max_completion_tokens"] = reduced
-            call_gen_params = retry_params
-            response = chat_completion(
-                client=client,
-                model=candidate.model_id,
-                messages=actual_messages,
-                **retry_params,
-                **extra_kwargs,
-            )
-        t1 = time.monotonic()
 
-        raw_text = response.choices[0].message.content or ""
-        reasoning_text, raw_text = _extract_reasoning(
-            response.choices[0].message, raw_text,
-        )
-        finish_reason = response.choices[0].finish_reason
-        usage = response.usage
+        # Gemini native path: use responseSchema for structured output
+        if candidate.vendor == "gemini":
+            gemini_schema = None
+            if use_structured_output and json_schema_ref:
+                gemini_schema = _load_json_schema(json_schema_ref)
+            result = gemini_inference_completion(
+                model=candidate.model_id,
+                messages=actual_messages,
+                endpoint=candidate.endpoint,
+                generation_params=call_gen_params,
+                response_schema=gemini_schema,
+            )
+            t1 = time.monotonic()
+            raw_text = result.text
+            reasoning_text = None
+            finish_reason = result.finish_reason
+            usage = None
+            input_tokens = result.input_tokens or 0
+            output_tokens = result.output_tokens or 0
+        else:
+            # OpenAI / Azure OpenAI / custom path
+            try:
+                response = chat_completion(
+                    client=client,
+                    model=candidate.model_id,
+                    messages=actual_messages,
+                    **call_gen_params,
+                    **extra_kwargs,
+                )
+            except BadRequestError as budget_exc:
+                if not _is_token_budget_error(budget_exc):
+                    raise
+                original_budget = (
+                    call_gen_params.get("max_completion_tokens")
+                    or call_gen_params.get("max_tokens")
+                    or 0
+                )
+                reduced = _extract_reduced_budget(budget_exc, int(original_budget))
+                if reduced is None:
+                    logger.warning(
+                        "Token budget exceeded for %s/%s but remaining budget too small; not retrying: %s",
+                        tc.testcase_id, candidate.candidate_id, budget_exc,
+                    )
+                    raise
+                logger.warning(
+                    "Token budget exceeded for %s/%s; retrying with max_completion_tokens=%d (was %s): %s",
+                    tc.testcase_id, candidate.candidate_id, reduced, original_budget, budget_exc,
+                )
+                retry_params = dict(call_gen_params)
+                retry_params.pop("max_tokens", None)
+                retry_params["max_completion_tokens"] = reduced
+                call_gen_params = retry_params
+                response = chat_completion(
+                    client=client,
+                    model=candidate.model_id,
+                    messages=actual_messages,
+                    **retry_params,
+                    **extra_kwargs,
+                )
+            t1 = time.monotonic()
+            raw_text = response.choices[0].message.content or ""
+            reasoning_text, raw_text = _extract_reasoning(
+                response.choices[0].message, raw_text,
+            )
+            finish_reason = response.choices[0].finish_reason
+            usage = response.usage
+            input_tokens = usage.prompt_tokens if usage else 0
+            output_tokens = usage.completion_tokens if usage else 0
 
         # Detect format from constraints
         fmt = None
@@ -658,8 +681,8 @@ def _call_model(
             input_hash=actual_input_hash,
             output=output,
             usage=UsageInfo(
-                input_tokens=usage.prompt_tokens if usage else 0,
-                output_tokens=usage.completion_tokens if usage else 0,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
                 reasoning_tokens=getattr(
                     getattr(usage, "completion_tokens_details", None),
                     "reasoning_tokens",

@@ -115,7 +115,7 @@ protocol:
 |--------|-----------|----------------------------|-----------------|
 | `openai` | OpenAI SDK | Yes (`response_format=json_schema`) | Yes |
 | `azure-openai` | Azure OpenAI SDK | Yes (`response_format=json_schema`) | Yes |
-| `gemini` | Native HTTP (REST) | No (planned) | Yes (`responseMimeType`) |
+| `gemini` | Native HTTP (REST) | Yes (`responseSchema`) | Yes (`responseMimeType`) |
 | Custom | OpenAI-compatible | No | Yes |
 
 Environment variable naming: `{VENDOR}_API_KEY`, `{VENDOR}_ENDPOINT` (vendor name uppercased, `-` replaced with `_`).
