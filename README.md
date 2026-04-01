@@ -111,12 +111,12 @@ protocol:
 
 ## Supported Vendors
 
-| Vendor | Transport | Structured Output |
-|--------|-----------|-------------------|
-| `openai` | OpenAI SDK | Yes |
-| `azure-openai` | Azure OpenAI SDK | Yes |
-| `gemini` | Native HTTP (REST) | No |
-| Custom | OpenAI-compatible | No |
+| Vendor | Transport | Inference Structured Output | Judge JSON Mode |
+|--------|-----------|----------------------------|-----------------|
+| `openai` | OpenAI SDK | Yes (`response_format=json_schema`) | Yes |
+| `azure-openai` | Azure OpenAI SDK | Yes (`response_format=json_schema`) | Yes |
+| `gemini` | Native HTTP (REST) | No (planned) | Yes (`responseMimeType`) |
+| Custom | OpenAI-compatible | No | Yes |
 
 Environment variable naming: `{VENDOR}_API_KEY`, `{VENDOR}_ENDPOINT` (vendor name uppercased, `-` replaced with `_`).
 
