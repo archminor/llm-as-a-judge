@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/comparison-report.schema.json",
+  "title": "ComparisonReport",
+  "type": "object",
+  "required": [
+    "run_id",
+    "dataset",
+    "candidates",
+    "judges",
+    "protocol",
+    "results"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dataset_version": {
+          "type": "string"
+        },
+        "testcase_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "vendor",
+          "model_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "vendor": {
+            "type": "string"
+          },
+          "model_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "judges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "judge_id",
+          "vendor",
+          "model_id",
+          "rubric_version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "judge_id": {
+            "type": "string"
+          },
+          "vendor": {
+            "type": "string"
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "rubric_version": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "total_judgements": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "全判定レコード数"
+        },
+        "valid_judgements": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "有効判定数（per_metricが空でないもの）"
+        },
+        "excluded_judgements": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "除外数（エラー等で採点不能だったもの）"
+        },
+        "repeat_stability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "反復実行の安定性指標（同一ケース・同一Judge内の判定一致率）"
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "overall": {
+          "$ref": "#/$defs/aggregateBlock"
+        },
+        "by_task": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/aggregateBlock"
+          }
+        },
+        "by_bucket": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/aggregateBlock"
+          }
+        },
+        "judge_agreement": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pairwise_agreement_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "aggregateBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "win_rate": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "description": "candidate_id -> win rate"
+        },
+        "loss_rate": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "description": "candidate_id -> loss rate"
+        },
+        "mean_score": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "description": "metricId -> { candidate_id -> mean score }"
+        },
+        "weighted_overall": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "candidate_id -> weighted overall score"
+        },
+        "confidence_intervals": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "critical_issue_count": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "candidate_id -> critical issue count"
+        },
+        "notable_failures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "testcase_id": {
+                "type": "string"
+              },
+              "candidate_id": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "inference_consistency": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "description": "candidate_id -> mean consistency score (1-5)"
+        }
+      }
+    }
+  }
+}

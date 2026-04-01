@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="900" height="480" rx="12" fill="url(#bg)" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="450" y="36" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Evaluation Modes &amp; 3-Layer Judge Architecture</text>
+
+  <!-- ─── Input (top center) ─── -->
+  <rect x="310" y="56" width="280" height="60" rx="8" fill="white" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow)"/>
+  <text x="450" y="76" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">Instruction</text>
+  <text x="450" y="94" text-anchor="middle" font-size="10" fill="#64748b">"What is the capital of France?"</text>
+  <text x="450" y="108" text-anchor="middle" font-size="9" fill="#94a3b8">+ constraints: required_points, output_format, ...</text>
+
+  <!-- Arrows from instruction to responses -->
+  <line x1="380" y1="116" x2="160" y2="140" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="520" y1="116" x2="740" y2="140" stroke="#94a3b8" stroke-width="1"/>
+
+  <!-- ─── Response A ─── -->
+  <rect x="40" y="140" width="240" height="56" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.2" filter="url(#shadow)"/>
+  <text x="60" y="160" font-size="11" font-weight="700" fill="#1e40af">Response A</text>
+  <text x="165" y="160" font-size="10" fill="#64748b">(gemini-2.5-flash)</text>
+  <text x="60" y="180" font-size="10" fill="#475569">"Paris is the capital of France."</text>
+
+  <!-- ─── Response B ─── -->
+  <rect x="620" y="140" width="240" height="56" rx="8" fill="#fce7f3" stroke="#ec4899" stroke-width="1.2" filter="url(#shadow)"/>
+  <text x="640" y="160" font-size="11" font-weight="700" fill="#9d174d">Response B</text>
+  <text x="745" y="160" font-size="10" fill="#64748b">(gemini-2.5-pro)</text>
+  <text x="640" y="180" font-size="10" fill="#475569">"The capital of France is Paris, a city..."</text>
+
+  <!-- ─── LEFT: Pairwise Mode ─── -->
+  <rect x="30" y="220" width="260" height="240" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="30" y="220" width="260" height="30" rx="10" fill="#10b981"/>
+  <rect x="30" y="240" width="260" height="10" fill="#10b981"/>
+  <text x="160" y="241" text-anchor="middle" font-size="12" font-weight="700" fill="white">Pairwise Ranking</text>
+
+  <text x="50" y="272" font-size="10" font-weight="600" fill="#065f46">A vs B (blinded, randomized order)</text>
+
+  <!-- Evaluation criteria -->
+  <rect x="45" y="282" width="230" height="22" rx="4" fill="#d1fae5" stroke="#6ee7b7"/>
+  <text x="160" y="297" text-anchor="middle" font-size="9" fill="#047857">Evaluation Criteria (from rubric)</text>
+
+  <!-- Verbal feedback -->
+  <text x="50" y="320" font-size="9" font-weight="600" fill="#065f46">Verbal Feedback</text>
+  <rect x="45" y="326" width="230" height="50" rx="4" fill="white" stroke="#a7f3d0"/>
+  <text x="55" y="340" font-size="8.5" fill="#475569">accuracy: "Both are correct, but</text>
+  <text x="55" y="352" font-size="8.5" fill="#475569"><tspan font-weight="600" fill="#059669">B provides richer context</tspan> with</text>
+  <text x="55" y="364" font-size="8.5" fill="#475569">historical detail..." → A:4 B:5</text>
+
+  <!-- Scoring decision -->
+  <text x="50" y="392" font-size="9" font-weight="600" fill="#065f46">Scoring Decision</text>
+  <rect x="45" y="398" width="230" height="22" rx="4" fill="#d1fae5"/>
+  <text x="160" y="413" text-anchor="middle" font-size="10" font-weight="700" fill="#047857">Winner: B</text>
+  <rect x="220" y="400" width="50" height="18" rx="9" fill="#10b981"/>
+  <text x="245" y="413" text-anchor="middle" font-size="8" font-weight="600" fill="white">A:4 B:5</text>
+
+  <!-- ─── RIGHT: Absolute Mode ─── -->
+  <rect x="610" y="220" width="260" height="240" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="610" y="220" width="260" height="30" rx="10" fill="#f59e0b"/>
+  <rect x="610" y="240" width="260" height="10" fill="#f59e0b"/>
+  <text x="740" y="241" text-anchor="middle" font-size="12" font-weight="700" fill="white">Direct Assessment</text>
+
+  <text x="630" y="272" font-size="10" font-weight="600" fill="#78350f">Each response scored independently</text>
+
+  <!-- Evaluation criteria -->
+  <rect x="625" y="282" width="230" height="22" rx="4" fill="#fef08a" stroke="#fde047"/>
+  <text x="740" y="297" text-anchor="middle" font-size="9" fill="#a16207">Evaluation Criteria (from rubric)</text>
+
+  <!-- Verbal feedback -->
+  <text x="630" y="320" font-size="9" font-weight="600" fill="#78350f">Verbal Feedback</text>
+  <rect x="625" y="326" width="230" height="50" rx="4" fill="white" stroke="#fde68a"/>
+  <text x="635" y="340" font-size="8.5" fill="#475569">accuracy: "The response <tspan font-weight="600" fill="#d97706">correctly</tspan></text>
+  <text x="635" y="352" font-size="8.5" fill="#475569"><tspan font-weight="600" fill="#d97706">identifies Paris</tspan> and provides</text>
+  <text x="635" y="364" font-size="8.5" fill="#475569">additional context..." → score: 5</text>
+
+  <!-- Scoring decision -->
+  <text x="630" y="392" font-size="9" font-weight="600" fill="#78350f">Scoring Decision</text>
+  <rect x="625" y="398" width="230" height="22" rx="4" fill="#fef08a"/>
+  <!-- Stars -->
+  <text x="700" y="414" font-size="14" fill="#f59e0b">&#9733;&#9733;&#9733;&#9733;&#9733;</text>
+  <text x="780" y="413" font-size="10" font-weight="700" fill="#a16207">5 / 5</text>
+
+  <!-- ─── CENTER: 3-Layer detail ─── -->
+  <rect x="310" y="220" width="280" height="240" rx="10" fill="white" stroke="#6366f1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="310" y="220" width="280" height="30" rx="10" fill="#6366f1"/>
+  <rect x="310" y="240" width="280" height="10" fill="#6366f1"/>
+  <text x="450" y="241" text-anchor="middle" font-size="12" font-weight="700" fill="white">3-Layer Separated Evaluation</text>
+
+  <!-- Layer 1 -->
+  <rect x="325" y="260" width="250" height="42" rx="6" fill="#eef2ff" stroke="#a5b4fc"/>
+  <text x="340" y="277" font-size="10" font-weight="700" fill="#4338ca">Layer 1</text>
+  <text x="400" y="277" font-size="9" fill="#475569">Format &amp; Safety</text>
+  <text x="340" y="294" font-size="8.5" fill="#6366f1">format_compliance  harmlessness</text>
+  <rect x="510" y="266" width="56" height="16" rx="8" fill="#fecaca" stroke="#fca5a5"/>
+  <text x="538" y="278" text-anchor="middle" font-size="7.5" font-weight="600" fill="#dc2626">GATE</text>
+
+  <!-- Arrow -->
+  <text x="450" y="312" text-anchor="middle" font-size="10" fill="#a5b4fc">&#9660;</text>
+
+  <!-- Layer 2 -->
+  <rect x="325" y="318" width="250" height="55" rx="6" fill="#eef2ff" stroke="#a5b4fc"/>
+  <text x="340" y="335" font-size="10" font-weight="700" fill="#4338ca">Layer 2</text>
+  <text x="400" y="335" font-size="9" fill="#475569">Content Quality</text>
+  <text x="340" y="350" font-size="8.5" fill="#6366f1">accuracy  faithfulness  completeness</text>
+  <text x="340" y="364" font-size="8.5" fill="#6366f1">relevance  reasoning  citation_quality</text>
+
+  <!-- Arrow -->
+  <text x="450" y="384" text-anchor="middle" font-size="10" fill="#a5b4fc">&#9660;</text>
+
+  <!-- Layer 3 -->
+  <rect x="325" y="390" width="250" height="42" rx="6" fill="#eef2ff" stroke="#a5b4fc"/>
+  <text x="340" y="407" font-size="10" font-weight="700" fill="#4338ca">Layer 3</text>
+  <text x="400" y="407" font-size="9" fill="#475569">Expression Quality</text>
+  <text x="340" y="422" font-size="8.5" fill="#6366f1">expression_quality</text>
+  <text x="474" y="422" font-size="7.5" fill="#94a3b8">no shared context between layers</text>
+</svg>

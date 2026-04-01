@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/inference-record.schema.json",
+  "title": "InferenceRecord",
+  "type": "object",
+  "required": [
+    "run_id",
+    "testcase_id",
+    "candidate_id",
+    "model",
+    "output"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "testcase_id": {
+      "type": "string"
+    },
+    "candidate_id": {
+      "type": "string"
+    },
+    "model": {
+      "type": "object",
+      "required": [
+        "vendor",
+        "model_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        }
+      }
+    },
+    "prompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prompt_version": {
+          "type": "string"
+        },
+        "prompt_hash": {
+          "type": "string"
+        }
+      }
+    },
+    "generation_params": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "input_hash": {
+      "type": "string"
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "free_text",
+            "markdown",
+            "json"
+          ]
+        },
+        "json": {
+          "type": [
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reasoning_tokens": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "latency_ms": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "default": true
+        },
+        "error_type": {
+          "type": "string"
+        },
+        "error_message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

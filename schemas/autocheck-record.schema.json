@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/autocheck-record.schema.json",
+  "title": "AutoCheckRecord",
+  "type": "object",
+  "required": [
+    "run_id",
+    "testcase_id",
+    "candidate_id",
+    "checks"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "testcase_id": {
+      "type": "string"
+    },
+    "candidate_id": {
+      "type": "string"
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "format_compliance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "passed": {
+              "type": "boolean"
+            },
+            "details": {
+              "type": "string"
+            }
+          }
+        },
+        "json_schema_validation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schema_ref": {
+              "type": "string"
+            },
+            "passed": {
+              "type": "boolean"
+            },
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

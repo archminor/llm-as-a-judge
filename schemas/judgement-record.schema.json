@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/judgement-record.schema.json",
+  "title": "JudgementRecord",
+  "type": "object",
+  "required": [
+    "run_id",
+    "testcase_id",
+    "judge",
+    "mode",
+    "targets",
+    "scores"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "testcase_id": {
+      "type": "string"
+    },
+    "judge": {
+      "type": "object",
+      "required": [
+        "judge_id",
+        "vendor",
+        "model_id",
+        "rubric_version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "judge_id": {
+          "type": "string"
+        },
+        "vendor": {
+          "type": "string"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "rubric_version": {
+          "type": "string"
+        },
+        "prompt_version": {
+          "type": "string"
+        }
+      }
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "pairwise",
+        "absolute"
+      ]
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "inference_ref"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "inference_ref": {
+            "type": "object",
+            "required": [
+              "path",
+              "line_index"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "line_index": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "blinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "presented_order": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Judgeに提示した順（candidate_idの配列）"
+        },
+        "random_seed": {
+          "type": "integer"
+        }
+      }
+    },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "per_metric"
+      ],
+      "properties": {
+        "per_metric": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              {
+                "type": "object",
+                "required": ["rationale", "score"],
+                "additionalProperties": false,
+                "properties": {
+                  "rationale": { "type": "string", "minLength": 1 },
+                  "score": { "type": "integer", "minimum": 1, "maximum": 5 }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["rationale", "score_a", "score_b"],
+                "additionalProperties": false,
+                "properties": {
+                  "rationale": { "type": "string", "minLength": 1 },
+                  "score_a": { "type": "integer", "minimum": 1, "maximum": 5 },
+                  "score_b": { "type": "integer", "minimum": 1, "maximum": 5 }
+                }
+              }
+            ]
+          }
+        },
+        "overall_winner": {
+          "type": "string",
+          "description": "pairwise の場合: candidate_id or 'tie'"
+        },
+        "overall_score": {
+          "type": "number",
+          "description": "absolute の場合などに使用（任意）"
+        }
+      }
+    },
+    "critical_issue": {
+      "type": "boolean",
+      "default": false,
+      "description": "いずれかのtargetに重大な品質欠陥が検出された場合true"
+    },
+    "critical_issue_candidates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "critical_issueが該当するcandidate_idのリスト（pairwiseで候補別に識別）"
+    },
+    "overall_rationale": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_ref": {
+            "type": "string"
+          },
+          "span": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

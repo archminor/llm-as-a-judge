@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/consistency-record.schema.json",
+  "title": "ConsistencyRecord",
+  "type": "object",
+  "required": [
+    "run_id",
+    "testcase_id",
+    "candidate_id",
+    "judge_id",
+    "repeat_count",
+    "scores"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "testcase_id": {
+      "type": "string"
+    },
+    "candidate_id": {
+      "type": "string"
+    },
+    "judge_id": {
+      "type": "string"
+    },
+    "repeat_count": {
+      "type": "integer",
+      "minimum": 2,
+      "description": "Number of inference outputs compared"
+    },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "overall": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Consistency score on a 1-5 scale"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "error_type": {
+          "type": "string"
+        },
+        "error_message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

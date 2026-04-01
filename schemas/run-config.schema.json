@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/run-config.schema.json",
+  "title": "RunConfig",
+  "type": "object",
+  "required": [
+    "run_id",
+    "candidates",
+    "judges",
+    "dataset",
+    "protocol"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dataset": {
+      "type": "object",
+      "required": [
+        "testcases_path"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "testcases_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dataset_version": {
+          "type": "string"
+        },
+        "holdout": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/modelRef"
+      }
+    },
+    "judges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/judgeRef"
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "required": [
+        "evaluation_mode",
+        "aggregation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "evaluation_mode": {
+          "type": "string",
+          "enum": [
+            "pairwise",
+            "absolute",
+            "hybrid"
+          ]
+        },
+        "blinding": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "random_seed": {
+              "type": "integer"
+            }
+          }
+        },
+        "repeats": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "inference_repeats": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "judge_repeats": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/metricId"
+          }
+        },
+        "aggregation": {
+          "type": "object",
+          "required": [
+            "method"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": [
+                "mean",
+                "majority_vote",
+                "worst_case",
+                "custom"
+              ]
+            },
+            "weights": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              },
+              "description": "metricId -> weight"
+            }
+          }
+        },
+        "parallelism": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "inference_max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "judge_max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "consistency_max_concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "protocol": {
+            "properties": {
+              "evaluation_mode": {
+                "enum": [
+                  "pairwise",
+                  "hybrid"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "candidates": {
+            "minItems": 2
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "modelRef": {
+      "type": "object",
+      "required": [
+        "candidate_id",
+        "vendor",
+        "model_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+        },
+        "vendor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "generation_params": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "prompt_version": {
+          "type": "string"
+        }
+      }
+    },
+    "judgeRef": {
+      "type": "object",
+      "required": [
+        "judge_id",
+        "vendor",
+        "model_id",
+        "rubric_version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "judge_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+        },
+        "vendor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rubric_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_version": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "generation_params": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "metricId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Any metric identifier defined in the rubric"
+    }
+  }
+}

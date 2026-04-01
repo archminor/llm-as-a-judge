@@ -1,0 +1,54 @@
+run_id: "eval-20260401"
+
+dataset:
+  testcases_path: "data/eval/testcases.jsonl"
+  dataset_version: "v1"
+
+candidates:
+  - candidate_id: "gemini-2.5-flash"
+    vendor: "gemini"
+    model_id: "gemini-2.5-flash"
+    generation_params:
+      temperature: 0
+      max_tokens: 1024
+
+  - candidate_id: "gemini-2.5-pro"
+    vendor: "gemini"
+    model_id: "gemini-2.5-pro"
+    generation_params:
+      temperature: 0
+      max_tokens: 1024
+
+judges:
+  - judge_id: "gpt-5.4-judge"
+    vendor: "openai"
+    model_id: "gpt-5.4"
+    rubric_version: "v1"
+
+protocol:
+  evaluation_mode: "hybrid"  # pairwise | absolute | hybrid
+
+  blinding:
+    enabled: true
+    random_seed: 42
+
+  repeats:
+    inference_repeats: 1   # >= 2 enables consistency mode
+    judge_repeats: 1
+
+  metrics:
+    - format_compliance
+    - harmlessness
+    - accuracy
+    - faithfulness
+    - completeness
+    - relevance
+
+  parallelism:
+    inference_max_concurrency: 5
+    judge_max_concurrency: 5
+    consistency_max_concurrency: 5
+
+  aggregation:
+    method: "majority_vote"  # mean | majority_vote | worst_case | custom
+    weights: {}
