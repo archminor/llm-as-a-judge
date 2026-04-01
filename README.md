@@ -91,6 +91,10 @@ protocol:
     - relevance
     - reasoning
     - expression_quality
+  parallelism:
+    inference_max_concurrency: 5
+    judge_max_concurrency: 5
+    consistency_max_concurrency: 5
   aggregation:
     method: "majority_vote"     # mean | majority_vote | worst_case | custom
 ```
@@ -118,7 +122,7 @@ Environment variable naming: `{VENDOR}_API_KEY`, `{VENDOR}_ENDPOINT` (vendor nam
 
 ## Rubric
 
-All evaluation logic is declared in a single Markdown file (`rubrics/v1.md`):
+All evaluation logic is declared in a single Markdown file ([`rubrics/v1.md`](rubrics/v1.md)):
 
 - **Metric definitions** — 9 metrics with scope, exclusions, and 1/3/5 score anchors
 - **Layer assignment** — which metrics belong to which layer (format / content / expression)
