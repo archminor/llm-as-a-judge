@@ -10,6 +10,7 @@ from llm_judge.artifact_validation import validate_single_artifact
 from llm_judge.config import load_run_config
 from llm_judge.models import (
     AggregateBlock,
+    AggregationMethod,
     AutoCheckRecord,
     CandidateInfo,
     ComparisonReport,
@@ -101,20 +102,19 @@ def run_compare(
     candidate_ids = [c.candidate_id for c in cfg.candidates]
 
     agg_method = cfg.protocol.aggregation.method
-    agg_weights = cfg.protocol.aggregation.weights
 
     overall = _compute_aggregate(
         judgements, candidate_ids, autochecks, consistencies,
-        weights=agg_weights, method=agg_method,
+        method=agg_method,
     )
 
     by_task = _compute_by_group(
         judgements, candidate_ids, autochecks, tc_map, consistencies, group_by="task_type",
-        weights=agg_weights, method=agg_method,
+        method=agg_method,
     )
     by_bucket = _compute_by_group(
         judgements, candidate_ids, autochecks, tc_map, consistencies, group_by="bucket",
-        weights=agg_weights, method=agg_method,
+        method=agg_method,
     )
 
     agreement = _compute_judge_agreement(judgements)
@@ -181,7 +181,7 @@ def _mode_value(values: list[float | int]) -> float:
 
 
 def _aggregate_scores(
-    method: str,
+    method: AggregationMethod,
     metric_scores: dict[str, dict[str, list[float]]],
 ) -> dict[str, dict[str, float]]:
     if method == "mean":
@@ -194,7 +194,7 @@ def _aggregate_scores(
             m: {cid: round(min(scores), 2) for cid, scores in by_cid.items()}
             for m, by_cid in metric_scores.items()
         }
-    if method in ("majority_vote", "custom"):
+    if method == "majority_vote":
         return {
             m: {cid: round(mean(scores), 2) for cid, scores in by_cid.items()}
             for m, by_cid in metric_scores.items()
@@ -202,44 +202,23 @@ def _aggregate_scores(
     raise ValueError(f"Unknown aggregation method: '{method}'")
 
 
-def _compute_weighted_overall(
-    method: str,
-    weights: dict[str, float] | None,
-    metric_scores: dict[str, dict[str, list[float]]],
+def _compute_overall_score_aggregate(
+    method: AggregationMethod,
     candidate_ids: list[str],
-    *,
     judge_overall_scores: dict[str, list[float]] | None = None,
 ) -> dict[str, float]:
-    if method == "custom" and not weights:
-        raise ValueError(
-            "Aggregation method 'custom' requires non-empty weights"
-        )
-
-    if judge_overall_scores:
-        weighted_overall: dict[str, float] = {}
-        for cid in candidate_ids:
-            scores = judge_overall_scores.get(cid, [])
-            if scores:
-                if method == "worst_case":
-                    weighted_overall[cid] = round(min(scores), 2)
-                else:
-                    weighted_overall[cid] = round(mean(scores), 2)
-        return weighted_overall
-
-    if not weights or not metric_scores:
+    if not judge_overall_scores:
         return {}
 
-    weighted_overall = {}
+    result: dict[str, float] = {}
     for cid in candidate_ids:
-        w_sum = 0.0
-        score_sum = 0.0
-        for metric_id, w in weights.items():
-            if metric_id in metric_scores and cid in metric_scores[metric_id]:
-                score_sum += mean(metric_scores[metric_id][cid]) * w
-                w_sum += w
-        if w_sum > 0:
-            weighted_overall[cid] = round(score_sum / w_sum, 2)
-    return weighted_overall
+        scores = judge_overall_scores.get(cid, [])
+        if scores:
+            if method == "worst_case":
+                result[cid] = round(min(scores), 2)
+            else:
+                result[cid] = round(mean(scores), 2)
+    return result
 
 
 def _count_pairwise_majority(
@@ -340,8 +319,7 @@ def _compute_aggregate(
     candidate_ids: list[str],
     autochecks: list[AutoCheckRecord],
     consistencies: list[ConsistencyRecord] | None = None,
-    weights: dict[str, float] | None = None,
-    method: str = "mean",
+    method: AggregationMethod = "mean",
 ) -> AggregateBlock:
     import math
 
@@ -393,8 +371,8 @@ def _compute_aggregate(
 
     mean_score = _aggregate_scores(method, metric_scores)
 
-    weighted_overall = _compute_weighted_overall(
-        method, weights, metric_scores, candidate_ids,
+    overall_score_aggregate = _compute_overall_score_aggregate(
+        method, candidate_ids,
         judge_overall_scores=dict(judge_overall_scores) if judge_overall_scores else None,
     )
 
@@ -471,7 +449,7 @@ def _compute_aggregate(
         win_rate=win_rate,
         loss_rate=loss_rate,
         mean_score=mean_score,
-        weighted_overall=weighted_overall,
+        overall_score_aggregate=overall_score_aggregate,
         confidence_intervals=confidence_intervals,
         critical_issue_count=critical_issue_count,
         notable_failures=failures,
@@ -486,8 +464,7 @@ def _compute_by_group(
     tc_map: dict[str, Testcase],
     consistencies: list[ConsistencyRecord] | None = None,
     group_by: str = "task_type",
-    weights: dict[str, float] | None = None,
-    method: str = "mean",
+    method: AggregationMethod = "mean",
 ) -> dict[str, AggregateBlock]:
     groups: dict[str, list[JudgementRecord]] = defaultdict(list)
     ac_groups: dict[str, list[AutoCheckRecord]] = defaultdict(list)
@@ -533,7 +510,7 @@ def _compute_by_group(
     for key, jdgs in groups.items():
         result[key] = _compute_aggregate(
             jdgs, candidate_ids, ac_groups.get(key, []), con_groups.get(key, []),
-            weights=weights, method=method,
+            method=method,
         )
 
     return result
@@ -713,15 +690,13 @@ def _write_markdown_report(
             lines.append(f"| {metric} | {' | '.join(vals)} |")
         lines.append("")
 
-    if report.results.overall.weighted_overall:
+    if report.results.overall.overall_score_aggregate:
         cids = [c.candidate_id for c in report.candidates]
-        weights = report.protocol.get("aggregation", {}).get("weights", {})
-        weights_str = ", ".join(f"{k}: {v}" for k, v in weights.items())
-        lines.append("### Weighted Overall Score")
-        lines.append(f"Weighted average score with weights: {weights_str}")
+        lines.append("### Overall Score Aggregate")
+        lines.append("Aggregate of Judge-provided overall_score values.")
         lines.append("")
         for cid in cids:
-            score = report.results.overall.weighted_overall.get(cid, 0.0)
+            score = report.results.overall.overall_score_aggregate.get(cid, 0.0)
             lines.append(f"- {cid}: {score:.2f}")
         lines.append("")
 

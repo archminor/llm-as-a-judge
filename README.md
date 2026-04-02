@@ -119,7 +119,7 @@ protocol:
     judge_max_concurrency: 5
     consistency_max_concurrency: 5
   aggregation:
-    method: "majority_vote"     # mean | majority_vote | worst_case | custom
+    method: "majority_vote"     # mean | majority_vote | worst_case
 ```
 
 ### Testcase Format

@@ -179,12 +179,12 @@
           },
           "description": "metricId -> { candidate_id -> mean score }"
         },
-        "weighted_overall": {
+        "overall_score_aggregate": {
           "type": "object",
           "additionalProperties": {
             "type": "number"
           },
-          "description": "candidate_id -> weighted overall score"
+          "description": "candidate_id -> aggregate of Judge-provided overall_score"
         },
         "confidence_intervals": {
           "type": "object",

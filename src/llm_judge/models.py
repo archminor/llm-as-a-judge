@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, Union
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 # ── Testcase ──────────────────────────────────────────────
@@ -123,9 +123,12 @@ class Repeats(BaseModel):
     judge_repeats: int = Field(1, ge=1)
 
 
+AggregationMethod = Literal["mean", "majority_vote", "worst_case"]
+
+
 class Aggregation(BaseModel):
-    method: str  # mean | majority_vote | worst_case | custom
-    weights: dict[str, float] = Field(default_factory=dict)
+    model_config = ConfigDict(extra="forbid")
+    method: AggregationMethod
 
 
 class Parallelism(BaseModel):
@@ -351,7 +354,7 @@ class AggregateBlock(BaseModel):
     win_rate: dict[str, float] = Field(default_factory=dict)
     loss_rate: dict[str, float] = Field(default_factory=dict)
     mean_score: dict[str, dict[str, float]] = Field(default_factory=dict)
-    weighted_overall: dict[str, float] = Field(default_factory=dict)
+    overall_score_aggregate: dict[str, float] = Field(default_factory=dict)
     confidence_intervals: dict[str, Any] = Field(default_factory=dict)
     critical_issue_count: dict[str, int] = Field(default_factory=dict)
     notable_failures: list[NotableFailure] = Field(default_factory=list)

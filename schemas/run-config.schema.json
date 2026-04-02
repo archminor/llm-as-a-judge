@@ -119,16 +119,8 @@
               "enum": [
                 "mean",
                 "majority_vote",
-                "worst_case",
-                "custom"
+                "worst_case"
               ]
-            },
-            "weights": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "number"
-              },
-              "description": "metricId -> weight"
             }
           }
         },

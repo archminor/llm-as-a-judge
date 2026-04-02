@@ -16,7 +16,7 @@ from llm_judge.stages.compare import (
     _aggregate_majority_vote_pairwise,
     _aggregate_scores,
     _compute_aggregate,
-    _compute_weighted_overall,
+    _compute_overall_score_aggregate,
     _mode_value,
     _reduce_absolute_scores_by_majority,
 )
@@ -121,43 +121,30 @@ class TestAggregateScoresMajorityVote:
         assert result["accuracy"]["c1"] == 3.0
 
 
-class TestAggregateScoresCustom:
-    def test_custom_uses_mean(self) -> None:
-        scores = {"accuracy": {"c1": [2, 4]}}
-        result = _aggregate_scores("custom", scores)
-        assert result["accuracy"]["c1"] == 3.0
-
-
 class TestUnknownMethodRaises:
     def test_unknown_raises_value_error(self) -> None:
         with pytest.raises(ValueError, match="Unknown aggregation method"):
             _aggregate_scores("nonexistent", {})
 
 
-class TestComputeWeightedOverall:
-    def test_custom_requires_weights(self) -> None:
-        with pytest.raises(ValueError, match="requires non-empty weights"):
-            _compute_weighted_overall("custom", {}, {}, ["c1"])
+class TestComputeOverallScoreAggregate:
+    def test_mean(self) -> None:
+        scores = {"c1": [3.0, 5.0]}
+        result = _compute_overall_score_aggregate("mean", ["c1"], scores)
+        assert result["c1"] == 4.0
 
-    def test_custom_with_weights(self) -> None:
-        scores = {
-            "accuracy": {"c1": [4.0, 4.0]},
-            "fluency": {"c1": [2.0, 2.0]},
-        }
-        weights = {"accuracy": 0.7, "fluency": 0.3}
-        result = _compute_weighted_overall("custom", weights, scores, ["c1"])
-        # weighted = (4.0 * 0.7 + 2.0 * 0.3) / (0.7 + 0.3) = 3.4
-        assert abs(result["c1"] - 3.4) < 0.01
-
-    def test_mean_with_weights(self) -> None:
-        scores = {"accuracy": {"c1": [3.0, 3.0]}}
-        weights = {"accuracy": 1.0}
-        result = _compute_weighted_overall("mean", weights, scores, ["c1"])
+    def test_worst_case(self) -> None:
+        scores = {"c1": [3.0, 5.0]}
+        result = _compute_overall_score_aggregate("worst_case", ["c1"], scores)
         assert result["c1"] == 3.0
 
-    def test_no_weights_returns_empty(self) -> None:
-        scores = {"accuracy": {"c1": [3.0]}}
-        result = _compute_weighted_overall("mean", {}, scores, ["c1"])
+    def test_majority_vote_uses_mean(self) -> None:
+        scores = {"c1": [3.0, 5.0]}
+        result = _compute_overall_score_aggregate("majority_vote", ["c1"], scores)
+        assert result["c1"] == 4.0
+
+    def test_no_scores_returns_empty(self) -> None:
+        result = _compute_overall_score_aggregate("mean", ["c1"])
         assert result == {}
 
 
@@ -263,26 +250,21 @@ class TestMajorityVoteAbsoluteMultiTestcase:
         result = _compute_aggregate(judgements, ["c1"], [], method="majority_vote")
         assert result.mean_score["accuracy"]["c1"] == 3.0
 
-    def test_weighted_overall_uses_reduced_scores(self) -> None:
-        """weighted_overall must use reduced (post-majority) data."""
+    def test_overall_score_aggregate_with_majority_vote(self) -> None:
+        """overall_score_aggregate uses mean of judge overall_score values."""
         judgements = [
-            # tc1: accuracy [5,5,1]→5, fluency [3,3,1]→3
-            _make_absolute_judgement("tc1", "c1", {"accuracy": 5, "fluency": 3}),
-            _make_absolute_judgement("tc1", "c1", {"accuracy": 5, "fluency": 3}),
-            _make_absolute_judgement("tc1", "c1", {"accuracy": 1, "fluency": 1}),
-            # tc2: accuracy [1,1,5]→1, fluency [1,1,3]→1
-            _make_absolute_judgement("tc2", "c1", {"accuracy": 1, "fluency": 1}),
-            _make_absolute_judgement("tc2", "c1", {"accuracy": 1, "fluency": 1}),
-            _make_absolute_judgement("tc2", "c1", {"accuracy": 5, "fluency": 3}),
+            _make_absolute_judgement("tc1", "c1", {"accuracy": 5}, overall_score=4.0),
+            _make_absolute_judgement("tc1", "c1", {"accuracy": 5}, overall_score=4.0),
+            _make_absolute_judgement("tc1", "c1", {"accuracy": 1}, overall_score=2.0),
+            _make_absolute_judgement("tc2", "c1", {"accuracy": 1}, overall_score=2.0),
+            _make_absolute_judgement("tc2", "c1", {"accuracy": 1}, overall_score=2.0),
+            _make_absolute_judgement("tc2", "c1", {"accuracy": 5}, overall_score=4.0),
         ]
-        weights = {"accuracy": 0.6, "fluency": 0.4}
         result = _compute_aggregate(
-            judgements, ["c1"], [], method="majority_vote", weights=weights,
+            judgements, ["c1"], [], method="majority_vote",
         )
-        # reduced accuracy: [5, 1] → mean = 3.0
-        # reduced fluency:  [3, 1] → mean = 2.0
-        # weighted = (3.0 * 0.6 + 2.0 * 0.4) / (0.6 + 0.4) = 2.6
-        assert abs(result.weighted_overall["c1"] - 2.6) < 0.01
+        # mean of [4.0, 4.0, 2.0, 2.0, 2.0, 4.0] = 3.0
+        assert abs(result.overall_score_aggregate["c1"] - 3.0) < 0.01
 
     def test_confidence_interval_uses_reduced_scores(self) -> None:
         """n in CI must be count of reduced groups, not raw repeat count."""
