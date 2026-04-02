@@ -193,7 +193,7 @@
       "properties": {
         "candidate_id": {
           "type": "string",
-          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
         },
         "vendor": {
           "type": "string",
@@ -212,6 +212,11 @@
         },
         "prompt_version": {
           "type": "string"
+        },
+        "structured_output": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable json_schema structured output for this candidate (for custom OpenAI-compatible endpoints)"
         }
       }
     },
@@ -227,7 +232,7 @@
       "properties": {
         "judge_id": {
           "type": "string",
-          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
         },
         "vendor": {
           "type": "string",

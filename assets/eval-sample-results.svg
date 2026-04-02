@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="system-ui,-apple-system,sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="520" rx="12" fill="url(#bg)" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="400" y="36" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">Evaluation Results — Sample Run</text>
+  <text x="400" y="54" text-anchor="middle" font-size="11" fill="#64748b">Judge: gpt-5.4 | 10 testcases | 30 judgements | hybrid mode</text>
+
+  <!-- Legend -->
+  <rect x="260" y="66" width="12" height="12" rx="2" fill="#6366f1"/>
+  <text x="278" y="77" font-size="11" fill="#334155">gpt-oss-20b</text>
+  <rect x="380" y="66" width="12" height="12" rx="2" fill="#06b6d4"/>
+  <text x="398" y="77" font-size="11" fill="#334155">gpt-5.4-mini</text>
+
+  <!-- Win Rate Donut (left panel) -->
+  <text x="130" y="110" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">Pairwise Win Rate</text>
+  <circle cx="130" cy="180" r="52" fill="none" stroke="#e2e8f0" stroke-width="18"/>
+  <!-- gpt-54-mini wins: 60% = 216deg, starting from top (-90deg) -->
+  <circle cx="130" cy="180" r="52" fill="none" stroke="#06b6d4" stroke-width="18"
+          stroke-dasharray="196.04 130.69" stroke-dashoffset="81.68" transform="rotate(-90 130 180)"/>
+  <!-- tie: 30% = 108deg -->
+  <circle cx="130" cy="180" r="52" fill="none" stroke="#94a3b8" stroke-width="18"
+          stroke-dasharray="98.02 228.71" stroke-dashoffset="-114.35" transform="rotate(-90 130 180)"/>
+  <!-- gpt-oss-20b wins: 10% = 36deg -->
+  <circle cx="130" cy="180" r="52" fill="none" stroke="#6366f1" stroke-width="18"
+          stroke-dasharray="32.67 294.06" stroke-dashoffset="-212.37" transform="rotate(-90 130 180)"/>
+  <!-- Center label -->
+  <text x="130" y="176" text-anchor="middle" font-size="20" font-weight="700" fill="#06b6d4">60%</text>
+  <text x="130" y="192" text-anchor="middle" font-size="10" fill="#64748b">mini wins</text>
+  <!-- Donut legend -->
+  <rect x="60" y="248" width="8" height="8" rx="1" fill="#06b6d4"/>
+  <text x="73" y="256" font-size="10" fill="#475569">Win 60%</text>
+  <rect x="120" y="248" width="8" height="8" rx="1" fill="#94a3b8"/>
+  <text x="133" y="256" font-size="10" fill="#475569">Tie 30%</text>
+  <rect x="172" y="248" width="8" height="8" rx="1" fill="#6366f1"/>
+  <text x="185" y="256" font-size="10" fill="#475569">Lose 10%</text>
+
+  <!-- Per-metric bar chart (right panel) -->
+  <text x="500" y="110" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">Mean Score by Metric (1-5)</text>
+
+  <!-- Grid lines -->
+  <line x1="370" y1="125" x2="370" y2="270" stroke="#e2e8f0" stroke-width="0.5"/>
+  <line x1="440" y1="125" x2="440" y2="270" stroke="#e2e8f0" stroke-width="0.5"/>
+  <line x1="510" y1="125" x2="510" y2="270" stroke="#e2e8f0" stroke-width="0.5"/>
+  <line x1="580" y1="125" x2="580" y2="270" stroke="#e2e8f0" stroke-width="0.5"/>
+  <line x1="650" y1="125" x2="650" y2="270" stroke="#e2e8f0" stroke-width="0.5"/>
+  <line x1="720" y1="125" x2="720" y2="270" stroke="#e2e8f0" stroke-width="0.5"/>
+  <!-- Scale labels -->
+  <text x="370" y="282" text-anchor="middle" font-size="9" fill="#94a3b8">0</text>
+  <text x="440" y="282" text-anchor="middle" font-size="9" fill="#94a3b8">1</text>
+  <text x="510" y="282" text-anchor="middle" font-size="9" fill="#94a3b8">2</text>
+  <text x="580" y="282" text-anchor="middle" font-size="9" fill="#94a3b8">3</text>
+  <text x="650" y="282" text-anchor="middle" font-size="9" fill="#94a3b8">4</text>
+  <text x="720" y="282" text-anchor="middle" font-size="9" fill="#94a3b8">5</text>
+
+  <!-- format_compliance: oss=3.8, mini=4.6 -->
+  <text x="365" y="137" text-anchor="end" font-size="10" fill="#475569">format</text>
+  <rect x="370" y="128" width="266" height="5" rx="2" fill="#6366f1" opacity="0.85"/>
+  <rect x="370" y="135" width="322" height="5" rx="2" fill="#06b6d4" opacity="0.85"/>
+  <text x="640" y="133" font-size="8" fill="#6366f1">3.8</text>
+  <text x="696" y="140" font-size="8" fill="#06b6d4">4.6</text>
+
+  <!-- harmlessness: oss=4.11, mini=4.56 -->
+  <text x="365" y="157" text-anchor="end" font-size="10" fill="#475569">harmless</text>
+  <rect x="370" y="148" width="288" height="5" rx="2" fill="#6366f1" opacity="0.85"/>
+  <rect x="370" y="155" width="319" height="5" rx="2" fill="#06b6d4" opacity="0.85"/>
+  <text x="662" y="153" font-size="8" fill="#6366f1">4.11</text>
+  <text x="693" y="160" font-size="8" fill="#06b6d4">4.56</text>
+
+  <!-- accuracy: oss=3.7, mini=4.5 -->
+  <text x="365" y="177" text-anchor="end" font-size="10" fill="#475569">accuracy</text>
+  <rect x="370" y="168" width="259" height="5" rx="2" fill="#6366f1" opacity="0.85"/>
+  <rect x="370" y="175" width="315" height="5" rx="2" fill="#06b6d4" opacity="0.85"/>
+  <text x="633" y="173" font-size="8" fill="#6366f1">3.7</text>
+  <text x="689" y="180" font-size="8" fill="#06b6d4">4.5</text>
+
+  <!-- faithfulness: oss=3.4, mini=4.0 -->
+  <text x="365" y="197" text-anchor="end" font-size="10" fill="#475569">faithful</text>
+  <rect x="370" y="188" width="238" height="5" rx="2" fill="#6366f1" opacity="0.85"/>
+  <rect x="370" y="195" width="280" height="5" rx="2" fill="#06b6d4" opacity="0.85"/>
+  <text x="612" y="193" font-size="8" fill="#6366f1">3.4</text>
+  <text x="654" y="200" font-size="8" fill="#06b6d4">4.0</text>
+
+  <!-- completeness: oss=3.7, mini=4.6 -->
+  <text x="365" y="217" text-anchor="end" font-size="10" fill="#475569">complete</text>
+  <rect x="370" y="208" width="259" height="5" rx="2" fill="#6366f1" opacity="0.85"/>
+  <rect x="370" y="215" width="322" height="5" rx="2" fill="#06b6d4" opacity="0.85"/>
+  <text x="633" y="213" font-size="8" fill="#6366f1">3.7</text>
+  <text x="696" y="220" font-size="8" fill="#06b6d4">4.6</text>
+
+  <!-- relevance: oss=3.7, mini=4.6 -->
+  <text x="365" y="237" text-anchor="end" font-size="10" fill="#475569">relevance</text>
+  <rect x="370" y="228" width="259" height="5" rx="2" fill="#6366f1" opacity="0.85"/>
+  <rect x="370" y="235" width="322" height="5" rx="2" fill="#06b6d4" opacity="0.85"/>
+  <text x="633" y="233" font-size="8" fill="#6366f1">3.7</text>
+  <text x="696" y="240" font-size="8" fill="#06b6d4">4.6</text>
+
+  <!-- Overall: oss=3.62, mini=4.42 -->
+  <text x="365" y="261" text-anchor="end" font-size="10" font-weight="600" fill="#334155">overall</text>
+  <rect x="370" y="252" width="253" height="6" rx="2" fill="#6366f1"/>
+  <rect x="370" y="260" width="309" height="6" rx="2" fill="#06b6d4"/>
+  <text x="627" y="258" font-size="9" font-weight="600" fill="#6366f1">3.62</text>
+  <text x="683" y="266" font-size="9" font-weight="600" fill="#06b6d4">4.42</text>
+
+  <!-- Task breakdown table -->
+  <text x="400" y="312" text-anchor="middle" font-size="13" font-weight="600" fill="#334155">Win Rate by Task Type</text>
+
+  <!-- Table header -->
+  <rect x="40" y="322" width="720" height="24" rx="4" fill="#e2e8f0"/>
+  <text x="120" y="338" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">Task</text>
+  <text x="260" y="338" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">gpt-oss-20b</text>
+  <text x="420" y="338" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">gpt-5.4-mini</text>
+  <text x="560" y="338" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">Tie</text>
+  <text x="690" y="338" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">Winner</text>
+
+  <!-- qa -->
+  <text x="120" y="360" text-anchor="middle" font-size="10" fill="#475569">qa (4)</text>
+  <text x="260" y="360" text-anchor="middle" font-size="10" fill="#6366f1">0%</text>
+  <text x="420" y="360" text-anchor="middle" font-size="10" fill="#06b6d4">50%</text>
+  <text x="560" y="360" text-anchor="middle" font-size="10" fill="#64748b">50%</text>
+  <text x="690" y="360" text-anchor="middle" font-size="10" font-weight="600" fill="#06b6d4">mini</text>
+
+  <!-- summarization -->
+  <rect x="40" y="367" width="720" height="20" rx="0" fill="#f8fafc"/>
+  <text x="120" y="381" text-anchor="middle" font-size="10" fill="#475569">summarization (2)</text>
+  <text x="260" y="381" text-anchor="middle" font-size="10" fill="#6366f1">0%</text>
+  <text x="420" y="381" text-anchor="middle" font-size="10" fill="#06b6d4">100%</text>
+  <text x="560" y="381" text-anchor="middle" font-size="10" fill="#64748b">0%</text>
+  <text x="690" y="381" text-anchor="middle" font-size="10" font-weight="600" fill="#06b6d4">mini</text>
+
+  <!-- analysis -->
+  <text x="120" y="401" text-anchor="middle" font-size="10" fill="#475569">analysis (1)</text>
+  <text x="260" y="401" text-anchor="middle" font-size="10" fill="#6366f1">100%</text>
+  <text x="420" y="401" text-anchor="middle" font-size="10" fill="#06b6d4">0%</text>
+  <text x="560" y="401" text-anchor="middle" font-size="10" fill="#64748b">0%</text>
+  <text x="690" y="401" text-anchor="middle" font-size="10" font-weight="600" fill="#6366f1">oss-20b</text>
+
+  <!-- extraction -->
+  <rect x="40" y="407" width="720" height="20" rx="0" fill="#f8fafc"/>
+  <text x="120" y="421" text-anchor="middle" font-size="10" fill="#475569">extraction (1)</text>
+  <text x="260" y="421" text-anchor="middle" font-size="10" fill="#6366f1">0%</text>
+  <text x="420" y="421" text-anchor="middle" font-size="10" fill="#06b6d4">0%</text>
+  <text x="560" y="421" text-anchor="middle" font-size="10" fill="#64748b">100%</text>
+  <text x="690" y="421" text-anchor="middle" font-size="10" fill="#64748b">tie</text>
+
+  <!-- report -->
+  <text x="120" y="441" text-anchor="middle" font-size="10" fill="#475569">report (1)</text>
+  <text x="260" y="441" text-anchor="middle" font-size="10" fill="#6366f1">0%</text>
+  <text x="420" y="441" text-anchor="middle" font-size="10" fill="#06b6d4">100%</text>
+  <text x="560" y="441" text-anchor="middle" font-size="10" fill="#64748b">0%</text>
+  <text x="690" y="441" text-anchor="middle" font-size="10" font-weight="600" fill="#06b6d4">mini</text>
+
+  <!-- creative -->
+  <rect x="40" y="447" width="720" height="20" rx="0" fill="#f8fafc"/>
+  <text x="120" y="461" text-anchor="middle" font-size="10" fill="#475569">creative (1)</text>
+  <text x="260" y="461" text-anchor="middle" font-size="10" fill="#6366f1">0%</text>
+  <text x="420" y="461" text-anchor="middle" font-size="10" fill="#06b6d4">100%</text>
+  <text x="560" y="461" text-anchor="middle" font-size="10" fill="#64748b">0%</text>
+  <text x="690" y="461" text-anchor="middle" font-size="10" font-weight="600" fill="#06b6d4">mini</text>
+
+  <!-- Footer -->
+  <line x1="40" y1="480" x2="760" y2="480" stroke="#e2e8f0"/>
+  <text x="400" y="500" text-anchor="middle" font-size="10" fill="#94a3b8">Critical issues: gpt-oss-20b (4) | gpt-5.4-mini (2) | Notable failures: 3 testcases with empty output</text>
+  <text x="400" y="514" text-anchor="middle" font-size="9" fill="#cbd5e1">Dataset v1</text>
+</svg>

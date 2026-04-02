@@ -89,9 +89,13 @@ def _get_output_format(tc: Testcase) -> OutputFormat | None:
     return tc.constraints.output_format
 
 
-def _supports_json_schema_format(vendor: str) -> bool:
-    """Return True if the vendor supports response_format=json_schema."""
-    return vendor in _JSON_SCHEMA_FORMAT_VENDORS
+def _supports_json_schema_format(vendor: str, candidate_flag: bool = False) -> bool:
+    """Return True if the vendor supports schema-constrained structured output.
+
+    Returns True if the vendor is in the known list, or if the candidate
+    config explicitly declares ``structured_output: true``.
+    """
+    return vendor in _JSON_SCHEMA_FORMAT_VENDORS or candidate_flag
 
 
 def _load_json_schema(json_schema_ref: str) -> dict:
@@ -401,7 +405,7 @@ def run_inference(
                     gen_params["max_completion_tokens"] = tc_max
                 else:
                     gen_params["max_tokens"] = tc_max
-            use_so = requires_so and _supports_json_schema_format(candidate.vendor)
+            use_so = requires_so and _supports_json_schema_format(candidate.vendor, candidate.structured_output)
             planned_rf = tc_response_format[tc.testcase_id] if use_so else None
             for repeat_idx in range(cfg.protocol.repeats.inference_repeats):
                 tasks.append(PlannedTask(
@@ -514,7 +518,7 @@ def _call_model(
     )
 
     # [P1] Only apply response_format=json_schema on vendors that support it.
-    use_structured_output = requires_so and _supports_json_schema_format(candidate.vendor)
+    use_structured_output = requires_so and _supports_json_schema_format(candidate.vendor, candidate.structured_output)
     extra_kwargs: dict = {}
     actual_messages = messages
     actual_input_hash = content_hash(str(messages))

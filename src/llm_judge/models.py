@@ -82,6 +82,7 @@ class ModelRef(BaseModel):
     endpoint: str | None = None
     generation_params: dict[str, Any] = Field(default_factory=dict)
     prompt_version: str | None = None
+    structured_output: bool = False
 
     @field_validator("generation_params")
     @classmethod
