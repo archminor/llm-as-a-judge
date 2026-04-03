@@ -16,8 +16,8 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/archminor/llm-judge"
-Issues = "https://github.com/archminor/llm-judge/issues"
+Repository = "https://github.com/archminor/llm-as-a-judge"
+Issues = "https://github.com/archminor/llm-as-a-judge/issues"
 dependencies = [
     "openai>=1.0",
     "pydantic>=2.0",
